@@ -27,10 +27,10 @@ export const OriginalBackupScreen: React.FC<OriginalBackupScreenProps> = ({ onNa
       id="original-backup-screen"
       data-xpath="//body"
       onClick={onNavigateToAtlas}
-      initial={{ x: '100%', opacity: 0.8 }}
-      animate={{ x: 0, opacity: 1 }}
-      exit={{ x: '-100%', opacity: 0.8 }}
-      transition={{ type: 'spring', damping: 25, stiffness: 200 }}
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
+      transition={{ duration: 0.2 }}
       className="min-h-screen w-full bg-[#fcfbf9] text-[#231f1c] p-6 sm:p-10 select-none cursor-pointer relative font-sans"
       title="Haz clic en cualquier parte de la pantalla para volver al Atlas de Sistema Nervioso"
     >

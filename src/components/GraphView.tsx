@@ -1,7 +1,9 @@
 import React, { useEffect, useRef, useState } from 'react';
+import { Network } from 'vis-network/standalone';
+import { DataSet } from 'vis-data';
 import { NeuroNode } from '../types';
 import { neuroNodes, neuroEdges } from '../data/neuroData';
-import { Crosshair, Plus, Minus, Brain, Link as LinkIcon, Hand, Pin, Network, Sparkles, Activity } from 'lucide-react';
+import { Crosshair, Plus, Minus, Brain, Link as LinkIcon, Hand, Pin, Network as NetworkIcon, Sparkles, Activity } from 'lucide-react';
 
 interface GraphViewProps {
   onSelectNodeInGlobal?: (nodeId: number) => void;
@@ -24,172 +26,170 @@ export const GraphView: React.FC<GraphViewProps> = () => {
 
     const initNetwork = () => {
       if (!containerRef.current) return;
-      const vis = (window as any).vis;
-      if (!vis) {
-        setTimeout(initNetwork, 100);
-        return;
-      }
 
-      const formattedNodes = neuroNodes.map(node => {
-        let bgColor = "#fdfbf7";
-        let borderColor = node.colorGroup || "#2b553c";
-        let fontColor = "#231f1c";
+      try {
+        const formattedNodes = neuroNodes.map(node => {
+          let bgColor = "#fdfbf7";
+          let borderColor = node.colorGroup || "#2b553c";
+          let fontColor = "#231f1c";
 
-        if (node.id === 1) {
-          bgColor = "#2b553c";
-          borderColor = "#1b3a28";
-          fontColor = "#ffffff";
-        } else if (node.group === "snc") {
-          bgColor = "#edf5f0";
-          borderColor = "#2b553c";
-          fontColor = "#162e21";
-        } else if (node.group === "snp" || node.group === "autonomo") {
-          bgColor = "#f0f6f9";
-          borderColor = "#205b76";
-          fontColor = "#0c3b52";
-        } else if (node.group === "pares") {
-          bgColor = "#faf3e6";
-          borderColor = "#8c5e3c";
-          fontColor = "#451a03";
-        } else if (node.group === "tallo") {
-          bgColor = "#fdf7ea";
-          borderColor = "#704812";
-          fontColor = "#451a03";
-        } else if (node.group === "prosencefalo") {
-          bgColor = "#fdf5ee";
-          borderColor = "#944920";
-          fontColor = "#522510";
-        } else if (node.group === "medula") {
-          bgColor = "#f4f1ea";
-          borderColor = "#5a432d";
-          fontColor = "#292420";
-        }
+          if (node.id === 1) {
+            bgColor = "#2b553c";
+            borderColor = "#1b3a28";
+            fontColor = "#ffffff";
+          } else if (node.group === "snc") {
+            bgColor = "#edf5f0";
+            borderColor = "#2b553c";
+            fontColor = "#162e21";
+          } else if (node.group === "snp" || node.group === "autonomo") {
+            bgColor = "#f0f6f9";
+            borderColor = "#205b76";
+            fontColor = "#0c3b52";
+          } else if (node.group === "pares") {
+            bgColor = "#faf3e6";
+            borderColor = "#8c5e3c";
+            fontColor = "#451a03";
+          } else if (node.group === "tallo") {
+            bgColor = "#fdf7ea";
+            borderColor = "#704812";
+            fontColor = "#451a03";
+          } else if (node.group === "prosencefalo") {
+            bgColor = "#fdf5ee";
+            borderColor = "#944920";
+            fontColor = "#522510";
+          } else if (node.group === "medula") {
+            bgColor = "#f4f1ea";
+            borderColor = "#5a432d";
+            fontColor = "#292420";
+          }
 
-        return {
-          id: node.id,
-          label: node.label,
-          title: `${node.label} (${node.period})`,
-          category: node.category,
-          group: node.group,
-          period: node.period,
-          desc: node.desc,
-          exam: node.exam,
-          color: {
-            background: bgColor,
-            border: borderColor,
-            highlight: {
-              background: "#ffb692",
-              border: "#944920"
+          return {
+            id: node.id,
+            label: node.label,
+            title: `${node.label} (${node.period})`,
+            category: node.category,
+            group: node.group,
+            period: node.period,
+            desc: node.desc,
+            exam: node.exam,
+            color: {
+              background: bgColor,
+              border: borderColor,
+              highlight: {
+                background: "#ffb692",
+                border: "#944920"
+              },
+              hover: {
+                background: "#faede6",
+                border: "#944920"
+              }
             },
-            hover: {
-              background: "#faede6",
-              border: "#944920"
+            borderWidth: 2,
+            font: {
+              face: "Newsreader, serif",
+              size: node.id === 1 ? 16 : 14,
+              color: fontColor,
+              strokeWidth: node.id === 1 ? 0 : 0.5,
+              strokeColor: "#ffffff"
+            },
+            shape: "box",
+            margin: { top: 8, right: 10, bottom: 8, left: 10 },
+            shapeProperties: {
+              borderRadius: 6
+            },
+            shadow: {
+              enabled: true,
+              color: "rgba(92, 61, 40, 0.12)",
+              size: 7,
+              x: 2,
+              y: 3
+            }
+          };
+        });
+
+        const formattedEdges = neuroEdges.map((edge, idx) => ({
+          id: idx + 1,
+          from: edge.from,
+          to: edge.to,
+          label: edge.label,
+          font: {
+            face: "Plus Jakarta Sans, sans-serif",
+            size: 10,
+            color: "#787169",
+            strokeWidth: 2,
+            strokeColor: "#fbf8f3",
+            align: "middle"
+          },
+          arrows: edge.arrows || "to",
+          color: {
+            color: "#c1c8c0",
+            highlight: "#944920",
+            hover: "#2b553c"
+          },
+          width: 1.5,
+          smooth: {
+            type: "cubicBezier",
+            roundness: 0.25
+          }
+        }));
+
+        const nodesDS = new DataSet(formattedNodes);
+        const edgesDS = new DataSet(formattedEdges);
+
+        nodesDataSetRef.current = nodesDS;
+        edgesDataSetRef.current = edgesDS;
+
+        const data: any = {
+          nodes: nodesDS,
+          edges: edgesDS
+        };
+
+        const options: any = {
+          physics: {
+            stabilization: {
+              iterations: 150
+            },
+            barnesHut: {
+              gravitationalConstant: -4200,
+              springConstant: 0.035,
+              springLength: 130,
+              damping: 0.09
             }
           },
-          borderWidth: 2,
-          font: {
-            face: "Newsreader, serif",
-            size: node.id === 1 ? 16 : 14,
-            color: fontColor,
-            strokeWidth: node.id === 1 ? 0 : 0.5,
-            strokeColor: "#ffffff"
-          },
-          shape: "box",
-          margin: 9,
-          shapeProperties: {
-            borderRadius: 6
-          },
-          shadow: {
-            enabled: true,
-            color: "rgba(92, 61, 40, 0.12)",
-            size: 7,
-            x: 2,
-            y: 3
+          interaction: {
+            hover: true,
+            tooltipDelay: 150,
+            zoomView: true,
+            dragView: true
           }
         };
-      });
 
-      const formattedEdges = neuroEdges.map((edge, idx) => ({
-        id: idx + 1,
-        from: edge.from,
-        to: edge.to,
-        label: edge.label,
-        font: {
-          face: "Plus Jakarta Sans, sans-serif",
-          size: 10,
-          color: "#787169",
-          strokeWidth: 2,
-          strokeColor: "#fbf8f3",
-          align: "middle"
-        },
-        arrows: edge.arrows || "to",
-        color: {
-          color: "#c1c8c0",
-          highlight: "#944920",
-          hover: "#2b553c"
-        },
-        width: 1.5,
-        smooth: {
-          type: "cubicBezier",
-          roundness: 0.25
-        }
-      }));
+        if (!isMounted || !containerRef.current) return;
+        const network = new Network(containerRef.current, data, options);
+        networkInstanceRef.current = network;
 
-      const nodesDS = new vis.DataSet(formattedNodes);
-      const edgesDS = new vis.DataSet(formattedEdges);
-
-      nodesDataSetRef.current = nodesDS;
-      edgesDataSetRef.current = edgesDS;
-
-      const data = {
-        nodes: nodesDS,
-        edges: edgesDS
-      };
-
-      const options = {
-        physics: {
-          stabilization: {
-            iterations: 150
-          },
-          barnesHut: {
-            gravitationalConstant: -4200,
-            springConstant: 0.035,
-            springLength: 130,
-            damping: 0.09
+        network.on("selectNode", (params: any) => {
+          if (params.nodes && params.nodes.length > 0) {
+            const clickedId = params.nodes[0];
+            const found = neuroNodes.find(n => n.id === clickedId);
+            if (found) {
+              setSelectedNode(found);
+            }
           }
-        },
-        interaction: {
-          hover: true,
-          tooltipDelay: 150,
-          zoomView: true,
-          dragView: true
-        }
-      };
+        });
 
-      if (!isMounted) return;
-      const network = new vis.Network(containerRef.current, data, options);
-      networkInstanceRef.current = network;
-
-      network.on("selectNode", (params: any) => {
-        if (params.nodes && params.nodes.length > 0) {
-          const clickedId = params.nodes[0];
-          const found = neuroNodes.find(n => n.id === clickedId);
-          if (found) {
-            setSelectedNode(found);
+        setTimeout(() => {
+          if (network && isMounted) {
+            network.selectNodes([1]);
+            network.focus(1, {
+              scale: 0.95,
+              animation: { duration: 600, easingFunction: "easeInOutQuad" }
+            });
           }
-        }
-      });
-
-      // Default focus on Sistema Nervioso
-      setTimeout(() => {
-        if (network && isMounted) {
-          network.selectNodes([1]);
-          network.focus(1, {
-            scale: 0.95,
-            animation: { duration: 600, easingFunction: "easeInOutQuad" }
-          });
-        }
-      }, 350);
+        }, 300);
+      } catch (err) {
+        console.error("Error setting up Vis Network:", err);
+      }
     };
 
     initNetwork();
@@ -267,10 +267,10 @@ export const GraphView: React.FC<GraphViewProps> = () => {
     }
   };
 
-  // Connected nodes calculation
-  const connectedEdges = neuroEdges.filter(e => e.from === selectedNode.id || e.to === selectedNode.id);
+  // Connected nodes calculation safely
+  const connectedEdges = selectedNode ? neuroEdges.filter(e => e.from === selectedNode.id || e.to === selectedNode.id) : [];
   const connectedNodeIds = Array.from(new Set(
-    connectedEdges.map(e => (e.from === selectedNode.id ? e.to : e.from))
+    connectedEdges.map(e => (selectedNode && e.from === selectedNode.id ? e.to : e.from))
   ));
   const connectedNodes = connectedNodeIds
     .map(id => neuroNodes.find(n => n.id === id))
@@ -278,8 +278,9 @@ export const GraphView: React.FC<GraphViewProps> = () => {
 
   // Icon for category
   const renderCategoryIcon = () => {
+    if (!selectedNode) return <Brain className="w-5 h-5 text-[#2b553c]" />;
     if (selectedNode.group === 'pares') {
-      return <Network className="w-5 h-5 text-[#8c5e3c]" />;
+      return <NetworkIcon className="w-5 h-5 text-[#8c5e3c]" />;
     } else if (selectedNode.group === 'snp' || selectedNode.group === 'autonomo') {
       return <Activity className="w-5 h-5 text-[#205b76]" />;
     } else if (selectedNode.group === 'prosencefalo') {
@@ -422,66 +423,72 @@ export const GraphView: React.FC<GraphViewProps> = () => {
         {/* Right Detail Panel */}
         <div className="lg:col-span-4 flex flex-col space-y-4">
           <div className="bg-white rounded-xl border border-[#d4cbc2] p-5 shadow-xs transition-all duration-300">
-            <div>
-              <div className="flex items-start justify-between gap-2 border-b border-[#d4cbc2]/40 pb-3">
-                <div>
-                  <span className="inline-block px-2 py-0.5 rounded text-[11px] font-semibold bg-[#2b553c]/10 text-[#2b553c]">
-                    {selectedNode.category}
-                  </span>
-                  <h3 className="text-lg font-bold text-[#292420] mt-1">
-                    {selectedNode.label}
-                  </h3>
-                  <p className="text-xs text-[#787169] font-medium">
-                    {selectedNode.period}
+            {selectedNode ? (
+              <div>
+                <div className="flex items-start justify-between gap-2 border-b border-[#d4cbc2]/40 pb-3">
+                  <div>
+                    <span className="inline-block px-2 py-0.5 rounded text-[11px] font-semibold bg-[#2b553c]/10 text-[#2b553c]">
+                      {selectedNode.category}
+                    </span>
+                    <h3 className="text-lg font-bold text-[#292420] mt-1">
+                      {selectedNode.label}
+                    </h3>
+                    <p className="text-xs text-[#787169] font-medium">
+                      {selectedNode.period}
+                    </p>
+                  </div>
+                  <div className="w-10 h-10 rounded-lg bg-[#f5efe9] flex items-center justify-center border border-[#d4cbc2]/60 flex-shrink-0">
+                    {renderCategoryIcon()}
+                  </div>
+                </div>
+
+                {/* Theoretical contribution */}
+                <div className="py-3">
+                  <h4 className="text-xs font-bold text-[#787169] uppercase tracking-wider mb-1">Descripción y Funciones:</h4>
+                  <p className="text-xs sm:text-sm text-[#231f1c] leading-relaxed">
+                    {selectedNode.desc}
                   </p>
                 </div>
-                <div className="w-10 h-10 rounded-lg bg-[#f5efe9] flex items-center justify-center border border-[#d4cbc2]/60 flex-shrink-0">
-                  {renderCategoryIcon()}
+
+                {/* Exam critical note */}
+                <div className="mt-2 p-3 bg-[#fef7e6] border border-amber-300/80 rounded-lg">
+                  <div className="flex items-center gap-1.5 text-amber-900 font-bold text-xs mb-1">
+                    <Pin className="w-3.5 h-3.5 text-amber-700" />
+                    <span>Punto clave de examen:</span>
+                  </div>
+                  <p className="text-xs text-amber-950 leading-relaxed">
+                    {selectedNode.exam}
+                  </p>
+                </div>
+
+                {/* Direct connections in network */}
+                <div className="mt-4 pt-3 border-t border-[#d4cbc2]/40">
+                  <span className="text-[11px] font-semibold text-[#787169] uppercase tracking-wider block mb-2">
+                    Estructuras y Vías Relacionadas:
+                  </span>
+                  <div className="flex flex-wrap gap-1.5 text-xs">
+                    {connectedNodes.length === 0 ? (
+                      <span className="text-xs text-[#787169] italic font-sans">Sin enlaces directos</span>
+                    ) : (
+                      connectedNodes.map(target => (
+                        <button
+                          key={target.id}
+                          onClick={() => selectNodeById(target.id)}
+                          className="px-2.5 py-1 rounded-md bg-[#f5efe9] hover:bg-[#ebe3dc] text-[#231f1c] text-xs transition border border-[#d4cbc2]/60 flex items-center gap-1 font-sans cursor-pointer"
+                        >
+                          <LinkIcon className="w-3 h-3 text-[#787169]" />
+                          <span>{target.label}</span>
+                        </button>
+                      ))
+                    )}
+                  </div>
                 </div>
               </div>
-
-              {/* Theoretical contribution */}
-              <div className="py-3">
-                <h4 className="text-xs font-bold text-[#787169] uppercase tracking-wider mb-1">Descripción y Funciones:</h4>
-                <p className="text-xs sm:text-sm text-[#231f1c] leading-relaxed">
-                  {selectedNode.desc}
-                </p>
+            ) : (
+              <div className="text-center py-8 text-[#787169] text-xs">
+                Selecciona un nodo del grafo para ver sus detalles.
               </div>
-
-              {/* Exam critical note */}
-              <div className="mt-2 p-3 bg-[#fef7e6] border border-amber-300/80 rounded-lg">
-                <div className="flex items-center gap-1.5 text-amber-900 font-bold text-xs mb-1">
-                  <Pin className="w-3.5 h-3.5 text-amber-700" />
-                  <span>Punto clave de examen:</span>
-                </div>
-                <p className="text-xs text-amber-950 leading-relaxed">
-                  {selectedNode.exam}
-                </p>
-              </div>
-
-              {/* Direct connections in network */}
-              <div className="mt-4 pt-3 border-t border-[#d4cbc2]/40">
-                <span className="text-[11px] font-semibold text-[#787169] uppercase tracking-wider block mb-2">
-                  Estructuras y Vías Relacionadas:
-                </span>
-                <div className="flex flex-wrap gap-1.5 text-xs">
-                  {connectedNodes.length === 0 ? (
-                    <span className="text-xs text-[#787169] italic font-sans">Sin enlaces directos</span>
-                  ) : (
-                    connectedNodes.map(target => (
-                      <button
-                        key={target.id}
-                        onClick={() => selectNodeById(target.id)}
-                        className="px-2.5 py-1 rounded-md bg-[#f5efe9] hover:bg-[#ebe3dc] text-[#231f1c] text-xs transition border border-[#d4cbc2]/60 flex items-center gap-1 font-sans cursor-pointer"
-                      >
-                        <LinkIcon className="w-3 h-3 text-[#787169]" />
-                        <span>{target.label}</span>
-                      </button>
-                    ))
-                  )}
-                </div>
-              </div>
-            </div>
+            )}
           </div>
         </div>
       </div>

@@ -60,26 +60,32 @@ export default function App() {
 
   return (
     <div className="min-h-screen bg-[#fdfbf7] text-[#231f1c] font-sans selection:bg-[#ffb692] selection:text-[#292420] flex flex-col relative overflow-x-hidden">
-      <AnimatePresence mode="wait">
+      <AnimatePresence mode="wait" initial={false}>
         {currentScreen === 'backup' ? (
           /* =========================================================
              SCREEN 2: Original Backup Screen (Class Notes)
              Clicking on body (xpath: //body) -> pushes to Screen 1
              ========================================================= */
-          <OriginalBackupScreen
+          <motion.div
             key="screen-backup"
-            onNavigateToAtlas={navigateToAtlas}
-          />
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.2 }}
+            className="w-full min-h-screen"
+          >
+            <OriginalBackupScreen onNavigateToAtlas={navigateToAtlas} />
+          </motion.div>
         ) : (
           /* =========================================================
              SCREEN 1: Sistema Nervioso: Atlas de Estudio SNP y SNC
              ========================================================= */
           <motion.div
             key="screen-atlas"
-            initial={{ x: '-100%', opacity: 0.8 }}
-            animate={{ x: 0, opacity: 1 }}
-            exit={{ x: '100%', opacity: 0.8 }}
-            transition={{ type: 'spring', damping: 25, stiffness: 200 }}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.2 }}
             className="flex flex-col min-h-screen w-full"
           >
             {/* Main Header */}
