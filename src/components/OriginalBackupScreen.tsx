@@ -1,5 +1,4 @@
 import React, { useEffect } from 'react';
-import { motion } from 'motion/react';
 import { ArrowLeft, BookOpen, CheckCircle, FileText } from 'lucide-react';
 
 interface OriginalBackupScreenProps {
@@ -23,14 +22,10 @@ export const OriginalBackupScreen: React.FC<OriginalBackupScreenProps> = ({ onNa
   }, [onNavigateToAtlas]);
 
   return (
-    <motion.div
+    <div
       id="original-backup-screen"
       data-xpath="//body"
       onClick={onNavigateToAtlas}
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      exit={{ opacity: 0 }}
-      transition={{ duration: 0.2 }}
       className="min-h-screen w-full bg-[#fcfbf9] text-[#231f1c] p-6 sm:p-10 select-none cursor-pointer relative font-sans"
       title="Haz clic en cualquier parte de la pantalla para volver al Atlas de Sistema Nervioso"
     >
@@ -152,6 +147,6 @@ export const OriginalBackupScreen: React.FC<OriginalBackupScreenProps> = ({ onNa
           </div>
         </div>
       </div>
-    </motion.div>
+    </div>
   );
 };

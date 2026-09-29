@@ -12,7 +12,6 @@ import { FlashcardsView } from './components/FlashcardsView';
 import { ExamGuideModal } from './components/ExamGuideModal';
 import { OriginalBackupScreen } from './components/OriginalBackupScreen';
 import { flashcardsData } from './data/neuroData';
-import { motion, AnimatePresence } from 'motion/react';
 import {
   Rat,
   Search,
@@ -60,34 +59,22 @@ export default function App() {
 
   return (
     <div className="min-h-screen bg-[#fdfbf7] text-[#231f1c] font-sans selection:bg-[#ffb692] selection:text-[#292420] flex flex-col relative overflow-x-hidden">
-      <AnimatePresence mode="wait" initial={false}>
-        {currentScreen === 'backup' ? (
-          /* =========================================================
-             SCREEN 2: Original Backup Screen (Class Notes)
-             Clicking on body (xpath: //body) -> pushes to Screen 1
-             ========================================================= */
-          <motion.div
-            key="screen-backup"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            transition={{ duration: 0.2 }}
-            className="w-full min-h-screen"
-          >
-            <OriginalBackupScreen onNavigateToAtlas={navigateToAtlas} />
-          </motion.div>
-        ) : (
-          /* =========================================================
-             SCREEN 1: Sistema Nervioso: Atlas de Estudio SNP y SNC
-             ========================================================= */
-          <motion.div
-            key="screen-atlas"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            transition={{ duration: 0.2 }}
-            className="flex flex-col min-h-screen w-full"
-          >
+      {currentScreen === 'backup' ? (
+        /* =========================================================
+           SCREEN 2: Original Backup Screen (Class Notes)
+           Clicking on body (xpath: //body) -> pushes to Screen 1
+           ========================================================= */
+        <div key="screen-backup" className="w-full min-h-screen">
+          <OriginalBackupScreen onNavigateToAtlas={navigateToAtlas} />
+        </div>
+      ) : (
+        /* =========================================================
+           SCREEN 1: Sistema Nervioso: Atlas de Estudio SNP y SNC
+           ========================================================= */
+        <div
+          key="screen-atlas"
+          className="flex flex-col min-h-screen w-full"
+        >
             {/* Main Header */}
             <header className="bg-white border-b border-[#d4cbc2] sticky top-0 z-40">
               <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3.5">
@@ -255,9 +242,8 @@ export default function App() {
               isOpen={isExamModalOpen}
               onClose={() => setIsExamModalOpen(false)}
             />
-          </motion.div>
-        )}
-      </AnimatePresence>
+        </div>
+      )}
     </div>
   );
 }
