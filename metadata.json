@@ -1,0 +1,8 @@
+{
+  "name": "Neuro anato t3",
+  "description": "Plataforma de estudio interactiva del Sistema Nervioso: Sistema Nervioso Periférico (Autónomo y Somático, 12 Pares Craneales, Nervios Espinales) y Sistema Nervioso Central (Encéfalo, Tallo, Médula Espinal, Corteza, Límbico y Basales).",
+  "requestFramePermissions": [],
+  "majorCapabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
+}
